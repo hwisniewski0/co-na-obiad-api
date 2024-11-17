@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from bs4 import BeautifulSoup
 import requests
 import re
+from collections import OrderedDict
 
 app = Flask(__name__)
 
@@ -29,22 +30,27 @@ def fetch_obiad_data():
     
     dane = []
     for data, tabela in zip(tygodniowe_daty, wszystkie_tabele):
-        dni = []
+        dni = OrderedDict()
         wiersze = tabela.find_all('tr')
+        dzien = None  # Zmienna do śledzenia aktualnego dnia
         for wiersz in wiersze:
             komorki = wiersz.find_all('td')
             tekst_komorek = [komorka.text.strip() for komorka in komorki]
             
-            if len(tekst_komorek) >= 2 and any(dzien in tekst_komorek[0] for dzien in ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]):
-                dni.append({
-                    "dzien": tekst_komorek[0],
-                    "obiad": tekst_komorek[1]
-                })
-            elif len(tekst_komorek) >= 2 and "Skład" in tekst_komorek[0]:
-                dni[-1]["skladniki"] = tekst_komorek[1]
-            elif len(tekst_komorek) >= 2 and "Alergeny" in tekst_komorek[0]:
-                dni[-1]["alergeny"] = tekst_komorek[1].split(", ")
-
+            # Rozpoznanie dnia tygodnia
+            if len(tekst_komorek) >= 2 and any(d in tekst_komorek[0] for d in ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]):
+                dzien = tekst_komorek[0]
+                obiad = tekst_komorek[1]
+                dni[dzien] = {"obiad": obiad, "skladniki": "", "alergeny": []}
+            
+            # Rozpoznanie składników
+            elif len(tekst_komorek) >= 2 and "skład surowcowy" in tekst_komorek[0].lower() and dzien:
+                dni[dzien]["skladniki"] = tekst_komorek[1]
+            
+            # Rozpoznanie alergenów
+            elif len(tekst_komorek) >= 2 and "alergeny" in tekst_komorek[0].lower() and dzien:
+                dni[dzien]["alergeny"] = tekst_komorek[1].split(", ")
+        
         dane.append({
             "tydzien": data,
             "dni": dni
@@ -61,5 +67,10 @@ def get_obiad():
     data = fetch_obiad_data()
     return jsonify(data)
 
+@app.route('/version')
+def version():
+    return "1.0.0"
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+
