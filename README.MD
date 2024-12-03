@@ -1,6 +1,6 @@
 # Co Na Obiad API
 
-Co Na Obiad API to aplikacja, która udostępnia dane o menu obiadowym w formie API. Została stworzona z myślą o udostępnieniu uczniom i nauczycielom informacji o dostępnych posiłkach w łatwej do przetworzenia formie.
+Co Na Obiad API to aplikacja, która udostępnia dane o menu obiadowym w formie API. Została stworzona z myślą o udostępnieniu informacji o dostępnych posiłkach w łatwej do przetworzenia formie.
 
 ## Link do API
 
