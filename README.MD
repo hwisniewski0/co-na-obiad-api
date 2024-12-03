@@ -8,6 +8,7 @@ Aplikacja jest hostowana na [Render.com](https://render.com/) i dostępna pod ad
 
 [https://co-na-obiad-api.onrender.com](https://co-na-obiad-api.onrender.com)
 
+Dane pobierane z [http://dualcafe.leszno.eu/obiady-domowe](http://dualcafe.leszno.eu/obiady-domowe)
 ## Funkcje
 
 - **Pobieranie menu**: API umożliwia pobranie codziennego menu na podstawie daty.
