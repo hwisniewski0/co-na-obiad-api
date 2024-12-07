@@ -168,6 +168,8 @@ def przeksztalc_json(weekly_json):
 
 def podziel_obiad(dane):
     wynik = []
+    dzisiaj = datetime.now().date()
+
     for wpis in dane:
         obiad = wpis.get("obiad", "")
         zupa, drugie_danie = "", ""
@@ -187,13 +189,21 @@ def podziel_obiad(dane):
         zupa = re.sub(r"[\s\t]+", " ", zupa).strip()
         drugie_danie = re.sub(r"[\s\t]+", " ", drugie_danie).strip()
 
+        # Czyszczenie składników
+        wpis["skladniki"] = re.sub(r"[\s\t]+", " ", wpis.get("skladniki", "")).strip()
+
         # Dodanie nowych kluczy do wpisu
         wpis["zupa"] = zupa
         wpis["drugie_danie"] = drugie_danie
         del wpis["obiad"]  # Usunięcie oryginalnego klucza 'obiad'
-        wynik.append(wpis)
+
+        # Filtracja po dacie
+        data_dnia = datetime.strptime(wpis["data_dnia"], "%Y-%m-%d").date()
+        if data_dnia >= dzisiaj:
+            wynik.append(wpis)
 
     return wynik
+
 
 
 @app.route('/get_obiad', methods=['GET'])
