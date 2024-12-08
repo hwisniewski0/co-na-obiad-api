@@ -55,11 +55,11 @@ def get_obiad():
         if len(tygodniowe_daty) == len(wszystkie_tabele):
             # Przechodzimy przez każdą datę tygodniową i tabelę
             for data, tabela in zip(tygodniowe_daty, wszystkie_tabele):
-                dzienne_menu = []  # Lista na dni w danym tygodniu
-                current_day = None  # Zmienna do przechowywania aktualnego dnia tygodnia
-                current_obiad = None  # Zmienna do przechowywania aktualnego obiadu
-                skladniki = None  # Zmienna do przechowywania składników
-                alergeny = None  # Zmienna do przechowywania alergenów
+                dzienne_menu = []
+                current_day = None
+                current_obiad = None
+                skladniki = None
+                alergeny = None 
 
                 wiersze = tabela.find_all('tr')
 
@@ -172,6 +172,44 @@ def przeksztalc_json(weekly_json):
     return daily_menu
 
 
+def podziel_obiad(dane):
+    wynik = []
+    dzisiaj = datetime.now().date()
+
+    for wpis in dane:
+        obiad = wpis.get("obiad", "")
+        zupa, drugie_danie = "", ""
+
+        # Rozdzielenie na podstawie pierwszego nawiasu
+        if "(" in obiad:
+            czesci = obiad.split("(", 1)
+            zupa = czesci[0].strip()
+            if ")" in czesci[1]:
+                drugie_danie = czesci[1].split(")", 1)[1].strip()
+
+        # Usuwanie gramatury w nawiasach i zbędnych spacji
+        zupa = re.sub(r"\s*\([^)]*\)", "", zupa).strip()
+        drugie_danie = re.sub(r"\s*\([^)]*\)", "", drugie_danie).strip()
+
+        # Zamiana wielokrotnych spacji i tabulatorów na pojedynczą spację
+        zupa = re.sub(r"[\s\t]+", " ", zupa).strip()
+        drugie_danie = re.sub(r"[\s\t]+", " ", drugie_danie).strip()
+
+        # Czyszczenie składników
+        wpis["skladniki"] = re.sub(r"[\s\t]+", " ", wpis.get("skladniki", "")).strip()
+
+        # Dodanie nowych kluczy do wpisu
+        wpis["zupa"] = zupa
+        wpis["drugie_danie"] = drugie_danie
+        del wpis["obiad"]  # Usunięcie oryginalnego klucza 'obiad'
+
+        # Filtracja po dacie
+        data_dnia = datetime.strptime(wpis["data_dnia"], "%Y-%m-%d").date()
+        if data_dnia >= dzisiaj:
+            wynik.append(wpis)
+
+    return wynik
+
 
 
 @app.route('/get_obiad', methods=['GET'])
@@ -180,11 +218,12 @@ def obiady():
     menu_data = get_obiad()
 
     converted_menu = przeksztalc_json(menu_data)
-    return jsonify(converted_menu)
+
+    return jsonify(podziel_obiad(converted_menu))
 
 @app.route('/version', methods=['GET'])
 def version():
-    return "1.0.0"
+    return "1.0"
 
 @app.route('/', methods=['GET'])
 def main():
@@ -253,4 +292,4 @@ def send_email_api():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0",port=8080)
