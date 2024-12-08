@@ -233,29 +233,27 @@ def main():
 # Funkcja wysyłająca e-mail
 def send_email(content, sender_email):
     try:
-        # Pobierz dane z zmiennych środowiskowych
+
         email_address = os.getenv('EMAIL_ADDRESS')
         email_password = os.getenv('EMAIL_PASSWORD')
-        email_recipient = os.getenv('EMAIL_RECIPIENT')  # Odbiorca e-maila
+        email_recipient = os.getenv('EMAIL_RECIPIENT')
         
         if not email_address or not email_password or not email_recipient:
             return False
         
 
-        # Ustawienia SMTP (Google)
+
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
 
-        # Tworzenie wiadomości e-mail
+
         msg = MIMEMultipart()
         msg['From'] = email_address
-        msg['To'] = email_recipient  # Używamy zmiennej środowiskowej EMAIL_RECIPIENT
-        msg['Subject'] = "Wiadomość od użytkownika"
+        msg['To'] = email_recipient
+        msg['Subject'] = f"Wiadomość od [ {sender_email} ]"
 
-        # Treść wiadomości
         msg.attach(MIMEText(content, 'plain'))
 
-        # Łączenie z serwerem SMTP
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
         server.login(email_address, email_password)
