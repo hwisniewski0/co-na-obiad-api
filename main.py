@@ -2,8 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from datetime import datetime, timedelta
+import smtplib
+from email.message import EmailMessage
+import os
+from dotenv import load_dotenv
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
@@ -183,6 +189,68 @@ def version():
 @app.route('/', methods=['GET'])
 def main():
     return render_template('index.html')
+
+
+# Funkcja wysyłająca e-mail
+def send_email(content, sender_email):
+    try:
+        # Pobierz dane z zmiennych środowiskowych
+        email_address = os.getenv('EMAIL_ADDRESS')
+        email_password = os.getenv('EMAIL_PASSWORD')
+        email_recipient = os.getenv('EMAIL_RECIPIENT')  # Odbiorca e-maila
+        
+        if not email_address or not email_password or not email_recipient:
+            return False
+        
+
+        # Ustawienia SMTP (Google)
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+
+        # Tworzenie wiadomości e-mail
+        msg = MIMEMultipart()
+        msg['From'] = email_address
+        msg['To'] = email_recipient  # Używamy zmiennej środowiskowej EMAIL_RECIPIENT
+        msg['Subject'] = "Wiadomość od użytkownika"
+
+        # Treść wiadomości
+        msg.attach(MIMEText(content, 'plain'))
+
+        # Łączenie z serwerem SMTP
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(email_address, email_password)
+
+        # Wysyłanie wiadomości
+        server.sendmail(email_address, email_recipient, msg.as_string())
+        server.quit()
+
+        print("Wiadomość została wysłana.")
+        return True
+    except Exception as e:
+        print(f"Błąd podczas wysyłania wiadomości e-mail: {e}")
+        return False
+
+
+@app.route('/send_email', methods=['GET'])
+def send_email_api():
+    # Odczytanie parametrów zapytania
+    content = request.args.get('content')
+    sender_email = request.args.get('sender')
+
+    if not content or not sender_email:
+        return jsonify({"error": "Brakuje argumentów 'content' lub 'sender'"}), 400
+
+    # Wywołanie funkcji wysyłającej e-mail
+    success = send_email(content, sender_email)
+    
+    if success:
+        return jsonify({"message": "Wiadomość e-mail została wysłana pomyślnie!"}), 200
+    else:
+        return jsonify({"error": "Wystąpił błąd podczas wysyłania e-maila"}), 500
+
+
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)
