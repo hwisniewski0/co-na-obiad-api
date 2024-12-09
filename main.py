@@ -282,7 +282,7 @@ def send_email_api():
     success = send_email(content, sender_email)
     
     if success:
-        return jsonify({"message": "Wiadomość e-mail została wysłana pomyślnie!"}), 200
+        return jsonify({"message": "200"}), 200
     else:
         return jsonify({"error": "Wystąpił błąd podczas wysyłania e-maila"}), 500
 
