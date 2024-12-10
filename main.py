@@ -178,29 +178,29 @@ def podziel_obiad(dane):
 
     for wpis in dane:
         obiad = wpis.get("obiad", "")
-        zupa, drugie_danie = "", ""
+        zupa, drugieDanie = "", ""
 
         # Rozdzielenie na podstawie pierwszego nawiasu
         if "(" in obiad:
             czesci = obiad.split("(", 1)
             zupa = czesci[0].strip()
             if ")" in czesci[1]:
-                drugie_danie = czesci[1].split(")", 1)[1].strip()
+                drugieDanie = czesci[1].split(")", 1)[1].strip()
 
         # Usuwanie gramatury w nawiasach i zbędnych spacji
         zupa = re.sub(r"\s*\([^)]*\)", "", zupa).strip()
-        drugie_danie = re.sub(r"\s*\([^)]*\)", "", drugie_danie).strip()
+        drugieDanie = re.sub(r"\s*\([^)]*\)", "", drugieDanie).strip()
 
         # Zamiana wielokrotnych spacji i tabulatorów na pojedynczą spację
         zupa = re.sub(r"[\s\t]+", " ", zupa).strip()
-        drugie_danie = re.sub(r"[\s\t]+", " ", drugie_danie).strip()
+        drugieDanie = re.sub(r"[\s\t]+", " ", drugieDanie).strip()
 
         # Czyszczenie składników
         wpis["skladniki"] = re.sub(r"[\s\t]+", " ", wpis.get("skladniki", "")).strip()
 
         # Dodanie nowych kluczy do wpisu
         wpis["zupa"] = zupa
-        wpis["drugie_danie"] = drugie_danie
+        wpis["drugieDanie"] = drugieDanie
         del wpis["obiad"]  # Usunięcie oryginalnego klucza 'obiad'
 
         # Filtracja po dacie
