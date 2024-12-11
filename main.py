@@ -141,7 +141,7 @@ def parse_date_range(date_range, year=None):
         else:  # Jeśli tylko dzień (zakładamy ten sam miesiąc co początkowy)
             end_date = datetime(year, start_date.month, int(end))
 
-        return start_date, end_date
+        return start_date.strftime("%d-%m-%Y"), end_date.strftime("%d-%m-%Y")
     except Exception as e:
         raise ValueError(f"Nieprawidłowy format tygodnia: {date_range}") from e
 
