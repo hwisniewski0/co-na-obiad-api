@@ -1,5 +1,5 @@
 from datetime import timedelta
-from parse_date_range import parse_date_range
+from .parse_date_range import *
 
 def przeksztalc_json(weekly_json):
     daily_menu = []

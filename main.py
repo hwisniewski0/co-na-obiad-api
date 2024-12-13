@@ -4,7 +4,6 @@ from modules.obiadowe.podziel_obiad import podziel_obiad
 from modules.obiadowe.przeksztalc_json import przeksztalc_json
 from modules.obiadowe.get_obiad import get_obiad
 from modules.obiadowe.send_email import send_email
-
 from modules.database.db_post import post_content
 
 

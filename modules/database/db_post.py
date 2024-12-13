@@ -1,4 +1,4 @@
-from db_components import *
+from .db_components import *
 from os import getenv
 
 
