@@ -1,13 +1,18 @@
 from flask import Flask, jsonify, render_template, request
-from podziel_obiad import podziel_obiad
-from przeksztalc_json import przeksztalc_json
-from get_obiad import get_obiad
-from f_email import send_email
+
+from modules.obiadowe.podziel_obiad import podziel_obiad
+from modules.obiadowe.przeksztalc_json import przeksztalc_json
+from modules.obiadowe.get_obiad import get_obiad
+from modules.obiadowe.send_email import send_email
+
+from modules.database.db_post import post_content
 
 
 app = Flask(__name__)
 
 
+################################################################
+######################## API OBIADOWE ##########################
 ################################################################
 @app.route('/get_obiad', methods=['GET'])
 def obiady():
@@ -17,14 +22,20 @@ def obiady():
     converted_menu = przeksztalc_json(menu_data)
 
     return jsonify(podziel_obiad(converted_menu))
+
+
 ################################################################
 @app.route('/version', methods=['GET'])
 def version():
     return "1.0"
+
+
 ################################################################
 @app.route('/', methods=['GET'])
 def main():
     return render_template('index.html')
+
+
 ################################################################
 @app.route('/send_email', methods=['GET'])
 def send_email_api():
@@ -42,7 +53,23 @@ def send_email_api():
         return jsonify({"message": "200"}), 200
     else:
         return jsonify({"error": "Wystąpił błąd podczas wysyłania e-maila"}), 500
+    
+
 ################################################################
+################### API - OCENY OBIADOW ########################
+################################################################
+
+@app.route('/api/post',methods=['GET'])
+def post():
+    nickname=request.args.get('nickname')
+    tresc = request.args.get('content')
+    result = post_content()
+    if result == "succes":
+        return "200"
+    else:
+        return "500"
+
+
 
 
 if __name__ == '__main__':

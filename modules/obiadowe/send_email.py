@@ -1,4 +1,4 @@
-import os
+from os import getenv
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
@@ -7,9 +7,9 @@ import smtplib
 def send_email(content, sender_email):
     try:
 
-        email_address = os.getenv('EMAIL_ADDRESS')
-        email_password = os.getenv('EMAIL_PASSWORD')
-        email_recipient = os.getenv('EMAIL_RECIPIENT')
+        email_address = getenv('EMAIL_ADDRESS')
+        email_password = getenv('EMAIL_PASSWORD')
+        email_recipient = getenv('EMAIL_RECIPIENT')
         
         if not email_address or not email_password or not email_recipient:
             return False
